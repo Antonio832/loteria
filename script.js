@@ -29,12 +29,30 @@ Array.prototype.equals = function (array) {
 // Hide method from for-in loops
 Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
+// let arr1 = [1,2,3]
+// let arr2 = [4,5,6]
+// let arr3 = [7,8,9]
+
+// test1 = [[...arr1],[...arr2]]
+
+// let flag = false
+
+// for(let card of test1){
+//     if(card.equals(arr3)){
+//         flag = true
+//         break
+//     }
+// }
+
+// console.log(flag)
+
+
 
 let imgs = []
 
 
 function preload(){
-    for(let i = 0; i < 53; i++){
+    for(let i = 0; i < 54; i++){
         let temp = loadImage(`./Cartas Lotería/${i + 1}.jpg`)
         imgs.push(temp)
     }
@@ -44,27 +62,35 @@ const PWIDTH = 117
 const PHEIGHT = 164
 const GAP = 28.346
 
-let history = []
+let historyLocal = []
+
+let historyGlobal = []
+
+let nCard = 4
+let counter = 0
 
 function setup(){
     let c = createCanvas(612, 792)
     background(255)
-    console.log(imgs)
     imageMode(CORNER)
     rectMode(CORNER)
     fill(0)
-    for(let i = 0; i < 4; i++){
+    
+    while(true){
+        // each row
         for(let i = 0; i < 4; i++){
+
             let y = (i * PHEIGHT + (GAP * (i + 1)))
+            // each cell
             for(let j = 0; j < 4; j++){
                 let x = (GAP * (j + 1)) + (j * PWIDTH)
                 rect(x - 2, y - 2, PWIDTH + 4, PHEIGHT + 4)
                 let index = Math.floor(Math.random() * imgs.length)
                 while(true){
-                    if(history.includes(index)){
+                    if(historyLocal.includes(index)){
                         index = Math.floor(Math.random() * imgs.length)
                     }else{
-                        history.push(index)
+                        historyLocal.push(index)
                         break
                     }
                 }
@@ -72,7 +98,34 @@ function setup(){
                 
             }
         }
-        history = []
-        save(c, `sample${i + 1}.png`)
+        if(!historyGlobal.length){
+            historyGlobal.push(historyLocal)
+            historyLocal = []
+            // Uncomment below to save to browser each card (requires allow pop-up)
+            
+            save(c, `Loteria No. ${counter + 1}.png`)
+        }else{
+            let hasExist = false
+            for(let card of historyGlobal){
+                if(card.equals(historyLocal)){
+                    hasExist = true
+                    break
+                }
+            }
+
+            if(!hasExist){
+                historyGlobal.push(historyLocal)
+                historyLocal = []
+                // Uncomment below to save to browser each card (requires allow pop-up)
+                save(c, `Loteria No. ${counter + 1}.png`)
+                counter += 1
+                console.log(counter)
+            }
+        }
+
+        if(counter == nCard){
+            break
+        }
     }
+    
 }
